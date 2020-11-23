@@ -24,7 +24,7 @@ To build and test your YOLO object detection algorithm follow the below steps:
 
 ## Getting Started
 
-### Google Colab Tutorial <a href="https://colab.research.google.com/github/AntonMu/TrainYourOwnYOLO/blob/master/TrainYourOwnYOLO.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+### Google Colab Tutorial <a href="https://colab.research.google.com/drive/1a9BAgn8SLe2pPvx-zgWKtwg379WTBPKI" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
 With Google Colab you can skip most of the set up steps and start training your own model right away. 
 
 ### Requisites
