@@ -7,7 +7,7 @@ import os
 import sys
 import argparse
 import warnings
-
+import math
 
 def get_parent_dir(n=1):
     """returns the n-th parent dicrectory of the current
@@ -288,11 +288,11 @@ if __name__ == "__main__":
         data_generator_wrapper(
             lines[:num_train], batch_size, input_shape, anchors, num_classes
         ),
-        steps_per_epoch=max(1, num_train // batch_size),
+        steps_per_epoch=max(1, math.ceil(float(num_train)/ batch_size)),
         validation_data=data_generator_wrapper(
             lines[num_train:], batch_size, input_shape, anchors, num_classes
         ),
-        validation_steps=max(1, num_val // batch_size),
+        validation_steps=max(1, math.ceil(float(num_train)/ batch_size)),
         epochs=epoch1 + epoch2,
         initial_epoch=epoch1,
         callbacks=full_callbacks,
