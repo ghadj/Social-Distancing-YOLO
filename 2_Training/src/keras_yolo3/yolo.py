@@ -325,6 +325,8 @@ def detect_video(yolo, video_path, output_path=""):
             out.write(result[:, :, ::-1])
         # if cv2.waitKey(1) & 0xFF == ord('q'):
         #     break
+
+    out_df.to_csv('Video_Prediction_Results.csv', index=False)
     vid.release()
     out.release()
     # yolo.close_session()
