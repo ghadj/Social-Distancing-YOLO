@@ -227,6 +227,22 @@ class YOLO(object):
 
 def detect_video(yolo, video_path, output_path=""):
     import cv2
+    import pandas as pd
+
+    # Make a dataframe for the prediction outputs
+    out_df = pd.DataFrame(
+        columns=[
+            "frame",
+            "xmin",
+            "ymin",
+            "xmax",
+            "ymax",
+            "label",
+            "confidence",
+            "x_size",
+            "y_size",
+        ]
+    )
 
     vid = cv2.VideoCapture(video_path)
     if not vid.isOpened():
@@ -250,6 +266,7 @@ def detect_video(yolo, video_path, output_path=""):
     curr_fps = 0
     fps = "FPS: ??"
     prev_time = timer()
+    frame_count = 1
     while vid.isOpened():
         return_value, frame = vid.read()
         if not return_value:
@@ -258,6 +275,31 @@ def detect_video(yolo, video_path, output_path=""):
         frame = frame[:, :, ::-1]
         image = Image.fromarray(frame)
         out_pred, image = yolo.detect_image(image, show_stats=False)
+        y_size, x_size, _ = np.array(image).shape
+        for single_prediction in out_pred:
+            out_df = out_df.append(
+                pd.DataFrame(
+                    [
+                        [
+                            frame_count
+                        ]
+                        + single_prediction
+                        + [x_size, y_size]
+                    ],
+                    columns=[
+                        "frame",
+                        "xmin",
+                        "ymin",
+                        "xmax",
+                        "ymax",
+                        "label",
+                        "confidence",
+                        "x_size",
+                        "y_size",
+                    ],
+                )
+            )
+        frame_count += 1
         result = np.asarray(image)
         curr_time = timer()
         exec_time = curr_time - prev_time
