@@ -100,7 +100,7 @@ class YOLO(object):
             )
         )
 
-        # Generate colors for drawing bounding boxes.
+        # Generate colors for drawing bounding boxes. @TODO
         if len(self.class_names) == 1:
             self.colors = ["GreenYellow"]
         else:
@@ -134,6 +134,31 @@ class YOLO(object):
             iou_threshold=self.iou,
         )
         return boxes, scores, classes
+
+    def check(self, a,  b):
+    	# Returns if the calibrated euclidean distance between the given objects
+    	# is below a threshold
+        dist = ((a[0] - b[0]) ** 2 + 550 / ((a[1] + b[1]) / 2) * (a[1] - b[1]) ** 2) ** 0.5
+        calibration = (a[1] + b[1]) / 2       
+        if 0 < dist < 0.25 * calibration:
+            return True
+        else:
+            return False
+
+    def get_colors(self, boxes):
+    	# Sets colors of boxes based on the calibrated euclidean distance 
+    	# between the objects
+        box_colors = ['GreenYellow'] * len(boxes) # initialize with green
+        for i in range(len(boxes)):
+            for j in range(len(boxes)):
+                if box_colors[i] == 'Red' and box_colors[j] == 'Red':
+                    continue
+                elif self.check(boxes[i], boxes[j]):
+                    box_colors[i] = 'Red'
+                    box_colors[j] = 'Red'
+      
+        return box_colors
+
 
     def detect_image(self, image, show_stats=True):
         start = timer()
@@ -172,10 +197,14 @@ class YOLO(object):
         )
         thickness = (image.size[0] + image.size[1]) // 300
 
+        # TODO
+        box_colors = self.get_colors(out_boxes)
+
         for i, c in reversed(list(enumerate(out_classes))):
             predicted_class = self.class_names[c]
             box = out_boxes[i]
             score = out_scores[i]
+            box_color = box_colors[i]
 
             label = "{} {:.2f}".format(predicted_class, score)
             draw = ImageDraw.Draw(image)
@@ -204,13 +233,14 @@ class YOLO(object):
                 text_origin = np.array([left, bottom])
 
             # My kingdom for a good redistributable image drawing library.
+            print(c)
             for i in range(thickness):
                 draw.rectangle(
-                    [left + i, top + i, right - i, bottom - i], outline=self.colors[c]
+                    [left + i, top + i, right - i, bottom - i], outline=box_color
                 )
             draw.rectangle(
                 [tuple(text_origin), tuple(text_origin + label_size)],
-                fill=self.colors[c],
+                fill=box_color,
             )
 
             draw.text(text_origin, label, fill=(0, 0, 0), font=font)
@@ -375,3 +405,4 @@ def detect_webcam(yolo):
             break
     vid.release()
     yolo.close_session()
+
