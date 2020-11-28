@@ -135,9 +135,18 @@ class YOLO(object):
         )
         return boxes, scores, classes
 
-    def check(self, a,  b):
-    	# Returns if the calibrated euclidean distance between the given objects
-    	# is below a threshold
+    def get_center(self, box, image):
+        top, left, bottom, right = box
+        top = max(0, np.floor(top + 0.5).astype("int32"))
+        left = max(0, np.floor(left + 0.5).astype("int32"))
+        bottom = min(image.size[1], np.floor(bottom + 0.5).astype("int32"))
+        right = min(image.size[0], np.floor(right + 0.5).astype("int32"))
+        
+        return [(left + right)/2, (top + bottom)/2]
+
+    def check(self, a, b):
+    	  # Returns if the calibrated euclidean distance between the given objects
+    	  # is below a threshold
         dist = ((a[0] - b[0]) ** 2 + 550 / ((a[1] + b[1]) / 2) * (a[1] - b[1]) ** 2) ** 0.5
         calibration = (a[1] + b[1]) / 2       
         if 0 < dist < 0.25 * calibration:
@@ -145,20 +154,23 @@ class YOLO(object):
         else:
             return False
 
-    def get_colors(self, boxes):
-    	# Sets colors of boxes based on the calibrated euclidean distance 
-    	# between the objects
+    def get_colors(self, boxes, image):
+    	  # Sets colors of boxes based on the calibrated euclidean distance 
+    	  # between the objects
+        pairs = set()
         box_colors = ['GreenYellow'] * len(boxes) # initialize with green
         for i in range(len(boxes)):
             for j in range(len(boxes)):
-                if box_colors[i] == 'Red' and box_colors[j] == 'Red':
-                    continue
-                elif self.check(boxes[i], boxes[j]):
+                center_i = self.get_center(boxes[i], image)
+                center_j = self.get_center(boxes[j], image)
+                
+                if self.check(center_i, center_j):
                     box_colors[i] = 'Red'
                     box_colors[j] = 'Red'
+             
+                    pairs.add((tuple(center_i), tuple(center_j)))
       
-        return box_colors
-
+        return box_colors, pairs
 
     def detect_image(self, image, show_stats=True):
         start = timer()
@@ -197,8 +209,13 @@ class YOLO(object):
         )
         thickness = (image.size[0] + image.size[1]) // 300
 
-        # TODO
-        box_colors = self.get_colors(out_boxes)
+        # Find close pairs
+        box_colors, pairs = self.get_colors(out_boxes, image)
+        for p in pairs:
+            draw = ImageDraw.Draw(image)
+            p1, p2 = p
+            draw.line((p1[0], p1[1], p2[0], p2[1]), fill='Red', width=5)
+
 
         for i, c in reversed(list(enumerate(out_classes))):
             predicted_class = self.class_names[c]
@@ -211,11 +228,12 @@ class YOLO(object):
             label_size = draw.textsize(label, font)
 
             top, left, bottom, right = box
+
             top = max(0, np.floor(top + 0.5).astype("int32"))
             left = max(0, np.floor(left + 0.5).astype("int32"))
             bottom = min(image.size[1], np.floor(bottom + 0.5).astype("int32"))
             right = min(image.size[0], np.floor(right + 0.5).astype("int32"))
-
+            
             # image was expanded to model_image_size: make sure it did not pick
             # up any box outside of original image (run into this bug when
             # lowering confidence threshold to 0.01)
@@ -404,4 +422,5 @@ def detect_webcam(yolo):
             break
     vid.release()
     yolo.close_session()
+
 
