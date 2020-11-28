@@ -233,7 +233,6 @@ class YOLO(object):
                 text_origin = np.array([left, bottom])
 
             # My kingdom for a good redistributable image drawing library.
-            print(c)
             for i in range(thickness):
                 draw.rectangle(
                     [left + i, top + i, right - i, bottom - i], outline=box_color
