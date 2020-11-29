@@ -144,17 +144,18 @@ class YOLO(object):
         
         return [(left + right)/2, (top + bottom)/2]
 
-    def check(self, a, b):
+    def check(self, a, b, calibr_param):
     	  # Returns if the calibrated euclidean distance between the given objects
     	  # is below a threshold
         dist = ((a[0] - b[0]) ** 2 + 550 / ((a[1] + b[1]) / 2) * (a[1] - b[1]) ** 2) ** 0.5
-        calibration = (a[1] + b[1]) / 2       
-        if 0 < dist < 0.38 * calibration:
+        calibration = (a[1] + b[1]) / 2    
+        
+        if 0 < dist < calibr_param * calibration:
             return True
         else:
             return False
 
-    def get_colors(self, boxes, image):
+    def get_colors(self, boxes, image, calibr_param):
     	  # Sets colors of boxes based on the calibrated euclidean distance 
     	  # between the objects
         pairs = set()
@@ -164,7 +165,7 @@ class YOLO(object):
                 center_i = self.get_center(boxes[i], image)
                 center_j = self.get_center(boxes[j], image)
                 
-                if self.check(center_i, center_j):
+                if self.check(center_i, center_j, calibr_param):
                     box_colors[i] = 'Red'
                     box_colors[j] = 'Red'
              
@@ -172,7 +173,7 @@ class YOLO(object):
       
         return box_colors, pairs
 
-    def detect_image(self, image, show_stats=True):
+    def detect_image(self, image, show_stats=True, calibr_param=0.25):
         start = timer()
 
         if self.model_image_size != (None, None):
@@ -210,7 +211,7 @@ class YOLO(object):
         thickness = (image.size[0] + image.size[1]) // 300
 
         # Find close pairs
-        box_colors, pairs = self.get_colors(out_boxes, image)
+        box_colors, pairs = self.get_colors(out_boxes, image, calibr_param)
         for p in pairs:
             draw = ImageDraw.Draw(image)
             p1, p2 = p
@@ -272,7 +273,7 @@ class YOLO(object):
         self.sess.close()
 
 
-def detect_video(yolo, video_path, output_path=""):
+def detect_video(yolo, video_path, output_path="", calibr_param=0.25):
     import cv2
     import pandas as pd
 
@@ -321,7 +322,7 @@ def detect_video(yolo, video_path, output_path=""):
         # opencv images are BGR, translate to RGB
         frame = frame[:, :, ::-1]
         image = Image.fromarray(frame)
-        out_pred, image = yolo.detect_image(image, show_stats=False)
+        out_pred, image = yolo.detect_image(image, calibr_param, show_stats=False)
         y_size, x_size, _ = np.array(image).shape
         for single_prediction in out_pred:
             out_df = out_df.append(
@@ -422,5 +423,3 @@ def detect_webcam(yolo):
             break
     vid.release()
     yolo.close_session()
-
-

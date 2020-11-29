@@ -51,6 +51,8 @@ anchors_path = os.path.join(src_path, "keras_yolo3", "model_data", "yolo_anchors
 
 FLAGS = None
 
+calibr_param = 0.25
+
 if __name__ == "__main__":
     # Delete all default flags
     parser = argparse.ArgumentParser(argument_default=argparse.SUPPRESS)
@@ -156,6 +158,14 @@ if __name__ == "__main__":
         help="Use webcam for real-time detection. Default is False.",
     )
 
+    parser.add_argument(
+        "--calibr_param",
+        type=float,
+        default=0.25,
+        help="Calibration scale parameter for Euclidean distance. Default is"
+        + str(calibr_param),
+    )
+
     FLAGS = parser.parse_args()
 
     save_img = not FLAGS.no_save_img
@@ -163,6 +173,8 @@ if __name__ == "__main__":
     file_types = FLAGS.file_types
 
     webcam_active = FLAGS.webcam
+
+    calibr_param = FLAGS.calibr_param
 
     if file_types:
         input_paths = GetFileList(FLAGS.input_path, endings=file_types)
@@ -243,6 +255,7 @@ if __name__ == "__main__":
                 save_img=save_img,
                 save_img_path=FLAGS.output,
                 postfix=FLAGS.postfix,
+                calibr_param=calibr_param
             )
             y_size, x_size, _ = np.array(image).shape
             for single_prediction in prediction:
@@ -295,7 +308,7 @@ if __name__ == "__main__":
                 FLAGS.output,
                 os.path.basename(vid_path).replace(".", FLAGS.postfix + "."),
             )
-            detect_video(yolo, vid_path, output_path=output_path)
+            detect_video(yolo, vid_path, output_path=output_path, calibr_param=calibr_param)
 
         end = timer()
         print(
