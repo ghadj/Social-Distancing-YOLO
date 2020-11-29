@@ -236,7 +236,7 @@ def get_avg_precision_at_iou(gt_boxes, pred_boxes, iou_thr=0.5):
             box_scores = pred_boxes_pruned[img_id]['scores']
             start_idx = 0
             for score in box_scores:
-                if score <= model_score_thr:
+                if score < model_score_thr:
                     pred_boxes_pruned[img_id]
                     start_idx += 1
                 else:
