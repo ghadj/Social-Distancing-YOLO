@@ -149,7 +149,7 @@ class YOLO(object):
     	  # is below a threshold
         dist = ((a[0] - b[0]) ** 2 + 550 / ((a[1] + b[1]) / 2) * (a[1] - b[1]) ** 2) ** 0.5
         calibration = (a[1] + b[1]) / 2       
-        if 0 < dist < 0.25 * calibration:
+        if 0 < dist < 0.38 * calibration:
             return True
         else:
             return False
