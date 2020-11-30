@@ -322,7 +322,8 @@ def detect_video(yolo, video_path, output_path="", calibr_param=0.25):
         # opencv images are BGR, translate to RGB
         frame = frame[:, :, ::-1]
         image = Image.fromarray(frame)
-        out_pred, image = yolo.detect_image(image, calibr_param, show_stats=False)
+        out_pred, image = yolo.detect_image(image, calibr_param=calibr_param,
+        									show_stats=False)
         y_size, x_size, _ = np.array(image).shape
         for single_prediction in out_pred:
             out_df = out_df.append(
