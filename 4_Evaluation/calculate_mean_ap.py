@@ -2,6 +2,9 @@
 author: Timothy C. Arlen
 date: 28 Feb 2018
 
+Reviced: George Hadjiantonis
+date: 02 Dec 2020
+
 Calculate Mean Average Precision (mAP) for a set of bounding boxes corresponding to specific
 image Ids. Usage:
 
@@ -12,6 +15,10 @@ summary information regarding the average precision and mAP scores.
 
 NOTE: Requires the files `ground_truth_boxes.json` and `predicted_boxes.json` which can be
 downloaded fromt this gist.
+
+Reference:
+https://jonathan-hui.medium.com/map-mean-average-precision-for-object-detection-45c121a31173#:~:text=AP%20(Average%20precision)%20is%20a,value%20over%200%20to%201
+https://manalelaidouni.github.io/manalelaidouni.github.io/Evaluating-Object-Detection-Models-Guide-to-Performance-Metrics.html#all-point-average-precision
 """
 
 from __future__ import absolute_import, division, print_function
@@ -23,6 +30,9 @@ import os
 import time
 
 import matplotlib.pyplot as plt
+from matplotlib.collections import PatchCollection
+from matplotlib.patches import Rectangle
+
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -189,6 +199,94 @@ def get_model_scores_map(pred_boxes):
                 model_scores_map[score].append(img_id)
     return model_scores_map
 
+
+def get_avg_prec_inter(precisions, recalls, plot_results=False):
+    """
+    Returns 11-point interpolated average precision.
+
+    Args:
+        precisions (list of floats)
+        recalls (list of floats)
+        plot_results (boolean)
+
+    Returns:
+        float: average precision
+    """
+    prec_at_rec = []
+    for recall_level in np.linspace(0, 1, 11):
+        try:
+            args = np.argwhere(recalls >= recall_level).flatten()
+            prec = max(precisions[args])
+        except ValueError:
+            prec = 0.0
+        prec_at_rec.append(prec)
+
+    if plot_results:
+        plt.figure()
+        plt.plot(recalls, precisions)
+        plt.plot(np.linspace(0, 1, 11), prec_at_rec, 's',
+                 color='r', marker='o', markersize=5)
+
+        plt.xlabel('recall')
+        plt.ylabel('precision')
+
+        plt.tight_layout()
+
+    return np.mean(prec_at_rec)
+
+
+def get_avg_prec_auc(precisions, recalls, plot_results=False):
+    """
+    Returns area under the curve (AUC).
+
+    Args:
+        precisions (list of floats)
+        recalls (list of floats)
+        plot_results (boolean)
+
+    Returns:
+        float: AUC
+     """
+    auc = 0 # area under curve
+    recalls, precisions = (list(t) for t in zip(*sorted(zip(recalls, precisions))))
+    recalls.insert(0, 0)
+    precisions.insert(0, 1) # add 1 as the first element
+
+    recall_coord = [recalls[-1]] # rectangle recall coordinates
+    precision_coord = [precisions[-1]] # rectangle precision coordinates
+
+    rects = []
+    for i, p in reversed(list(enumerate(precisions))):
+        if p > precision_coord[0]:
+            auc += (recall_coord[0]-recalls[i])*precision_coord[0]
+
+            if plot_results:
+                rects.append(Rectangle((recalls[i], 0), recall_coord[0]-recalls[i],
+                             precision_coord[0]))
+
+            precision_coord.insert(0, p)
+            recall_coord.insert(0, recalls[i])
+
+    if plot_results:
+        fig, ax = plt.subplots(1)
+        ax.plot(recalls[1:], precisions[1:])
+
+        # Create patch collection with specified colour/alpha
+        pc = PatchCollection(rects, facecolor='r', alpha=0.5, edgecolor='r')
+        # Add collection to axes
+        ax.add_collection(pc)
+
+        ax.set_xlim([-0.1,1.1])
+        ax.set_ylim([-0.1,1.1])
+
+        ax.set_xlabel('recall')
+        ax.set_ylabel('precision')
+
+        plt.tight_layout()
+
+    return auc
+
+
 def get_avg_precision_at_iou(gt_boxes, pred_boxes, iou_thr=0.5):
     """Calculates average precision at given IoU threshold.
 
@@ -204,7 +302,9 @@ def get_avg_precision_at_iou(gt_boxes, pred_boxes, iou_thr=0.5):
         dict: avg precision as well as summary info about the PR curve
 
         Keys:
-            'avg_prec' (float): average precision for this IoU threshold
+            'avg_prec_inter' (float): average precision for this IoU threshold using
+                                      11-point interpolation
+            'get_avg_prec_auc' (float): average precision for this IoU threshold using AUC
             'precisions' (list of floats): precision value for the given
                 model_threshold
             'recall' (list of floats): recall value for given
@@ -257,21 +357,15 @@ def get_avg_precision_at_iou(gt_boxes, pred_boxes, iou_thr=0.5):
 
     precisions = np.array(precisions)
     recalls = np.array(recalls)
-    prec_at_rec = []
-    for recall_level in np.linspace(0.0, 1.0, 11):
-        try:
-            args = np.argwhere(recalls >= recall_level).flatten()
-            prec = max(precisions[args])
-        except ValueError:
-            prec = 0.0
-        prec_at_rec.append(prec)
-    avg_prec = np.mean(prec_at_rec)
 
-    return {
-        'avg_prec': avg_prec,
-        'precisions': precisions,
-        'recalls': recalls,
-        'model_thrs': model_thrs}
+    avg_prec_inter = get_avg_prec_inter(precisions, recalls)
+    avg_prec_auc = get_avg_prec_auc(precisions, recalls)
+
+    return {'avg_prec_inter': avg_prec_inter,
+            'avg_prec_auc': avg_prec_auc,
+            'precisions': precisions,
+            'recalls': recalls,
+            'model_thrs': model_thrs}
 
 
 def plot_pr_curve(
@@ -288,8 +382,8 @@ def plot_pr_curve(
     ax.set_xlabel('recall')
     ax.set_ylabel('precision')
     ax.set_title('Precision-Recall curve for {}'.format(category))
-    ax.set_xlim([0.0,1.3])
-    ax.set_ylim([0.0,1.2])
+    ax.set_xlim([0.,1.])
+    ax.set_ylim([0.,1.])
     return ax
 
 
@@ -301,21 +395,15 @@ if __name__ == "__main__":
     with open('predicted_boxes.json') as infile:
         pred_boxes = json.load(infile)
 
-    # Runs it for one IoU threshold
-    iou_thr = 0.7
-    start_time = time.time()
-    data = get_avg_precision_at_iou(gt_boxes, pred_boxes, iou_thr=iou_thr)
-    end_time = time.time()
-    print('Single IoU calculation took {:.4f} secs'.format(end_time - start_time))
-    print('avg precision: {:.4f}'.format(data['avg_prec']))
-
     start_time = time.time()
     ax = None
-    avg_precs = []
+    avg_precs_inter = []
+    avg_precs_auc = []
     iou_thrs = []
     for idx, iou_thr in enumerate(np.linspace(0.5, 0.95, 10)):
         data = get_avg_precision_at_iou(gt_boxes, pred_boxes, iou_thr=iou_thr)
-        avg_precs.append(data['avg_prec'])
+        avg_precs_inter.append(data['avg_prec_inter'])
+        avg_precs_auc.append(data['avg_prec_auc'])
         iou_thrs.append(iou_thr)
 
         precisions = data['precisions']
@@ -323,15 +411,28 @@ if __name__ == "__main__":
         ax = plot_pr_curve(
             precisions, recalls, label='{:.2f}'.format(iou_thr), color=COLORS[idx*2], ax=ax)
 
-    # prettify for printing:
-    avg_precs = [float('{:.4f}'.format(ap)) for ap in avg_precs]
-    iou_thrs = [float('{:.4f}'.format(thr)) for thr in iou_thrs]
-    print('map: {:.2f}'.format(100*np.mean(avg_precs)))
-    print('avg precs: ', avg_precs)
-    print('iou_thrs:  ', iou_thrs)
     plt.legend(loc='upper right', title='IOU Thr', frameon=True)
     for xval in np.linspace(0.0, 1.0, 11):
         plt.vlines(xval, 0.0, 1.1, color='gray', alpha=0.3, linestyles='dashed')
+
+    # prettify for printing:
+    avg_precs_inter = [float('{:.4f}'.format(ap)) for ap in avg_precs_inter]
+    iou_thrs = [float('{:.4f}'.format(thr)) for thr in iou_thrs]
+
+    # Print results for 11-point interpolation
+    print('11-point interpolated average precision')
+    print('map: {:.2f}'.format(100*np.mean(avg_precs_inter)))
+    print('avg precs: ', avg_precs_inter)
+
+    # Print results for AUC
+    print('\nArea Under the Curve (AUC)')
+    print('map: {:.2f}'.format(100*np.mean(avg_precs_auc)))
+    print('avg precs: ', avg_precs_auc)
+
+    # Print IOU thresholds
+    print('\niou_thrs:  ', iou_thrs)
+
     end_time = time.time()
     print('\nPlotting and calculating mAP takes {:.4f} secs'.format(end_time - start_time))
+
     plt.show()
