@@ -369,7 +369,7 @@ def get_avg_precision_at_iou(gt_boxes, pred_boxes, iou_thr=0.5):
 
 
 def plot_pr_curve(
-    precisions, recalls, category='Person', label=None, color=None, ax=None):
+    precisions, recalls, category='Person YOLOv3-tiny', label=None, color=None, ax=None):
     """Simple plotting helper function"""
 
     if ax is None:
@@ -382,17 +382,17 @@ def plot_pr_curve(
     ax.set_xlabel('recall')
     ax.set_ylabel('precision')
     ax.set_title('Precision-Recall curve for {}'.format(category))
-    ax.set_xlim([0.,1.])
-    ax.set_ylim([0.,1.])
+    ax.set_xlim([0.0,1.3])
+    ax.set_ylim([0.0,1.2])
     return ax
 
 
 if __name__ == "__main__":
 
-    with open('ground_truth_boxes.json') as infile:
+    with open('test_data_ground_truth.json') as infile:
         gt_boxes = json.load(infile)
 
-    with open('predicted_boxes.json') as infile:
+    with open('test_data_predictions_tiny.json') as infile:
         pred_boxes = json.load(infile)
 
     start_time = time.time()
