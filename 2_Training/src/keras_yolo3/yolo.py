@@ -19,6 +19,8 @@ from keras.utils import multi_gpu_model
 import tensorflow.compat.v1 as tf
 import tensorflow.python.keras.backend as K
 
+import cv2
+
 tf.disable_eager_execution()
 
 
@@ -267,6 +269,7 @@ class YOLO(object):
         end = timer()
         if show_stats:
             print("Time spent: {:.3f}sec".format(end - start))
+
         return out_prediction, image
 
     def close_session(self):
@@ -368,12 +371,12 @@ def detect_video(yolo, video_path, output_path="", calibr_param=0.25):
             color=(255, 0, 0),
             thickness=2,
         )
-        # cv2.namedWindow("result", cv2.WINDOW_NORMAL)
-        # cv2.imshow("result", result)
+        cv2.namedWindow("result", cv2.WINDOW_NORMAL)
+        cv2.imshow("result", result[:, :, ::-1])
         if isOutput:
             out.write(result[:, :, ::-1])
-        # if cv2.waitKey(1) & 0xFF == ord('q'):
-        #     break
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            exit(0)
 
     out_df.to_csv('Video_Prediction_Results_' + video_path.split('/')[-1] + '.csv', index=False)
     vid.release()
