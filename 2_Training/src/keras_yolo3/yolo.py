@@ -19,6 +19,9 @@ from keras.utils import multi_gpu_model
 import tensorflow.compat.v1 as tf
 import tensorflow.python.keras.backend as K
 
+import cv2
+import math
+
 tf.disable_eager_execution()
 
 
@@ -32,6 +35,8 @@ class YOLO(object):
         "model_image_size": (416, 416),
         "gpu_num": 1,
     }
+
+    HUMAN_HEIGHT = 1.7  # meters
 
     @classmethod
     def get_defaults(cls, n):
@@ -64,7 +69,8 @@ class YOLO(object):
 
     def generate(self):
         model_path = os.path.expanduser(self.model_path)
-        assert model_path.endswith(".h5"), "Keras model or weights must be a .h5 file."
+        assert model_path.endswith(
+            ".h5"), "Keras model or weights must be a .h5 file."
 
         # Load model, or construct model and load weights.
         start = timer()
@@ -108,14 +114,17 @@ class YOLO(object):
                 (x / len(self.class_names), 1.0, 1.0)
                 for x in range(len(self.class_names))
             ]
-            self.colors = list(map(lambda x: colorsys.hsv_to_rgb(*x), hsv_tuples))
+            self.colors = list(
+                map(lambda x: colorsys.hsv_to_rgb(*x), hsv_tuples))
             self.colors = list(
                 map(
-                    lambda x: (int(x[0] * 255), int(x[1] * 255), int(x[2] * 255)),
+                    lambda x: (int(x[0] * 255),
+                               int(x[1] * 255), int(x[2] * 255)),
                     self.colors,
                 )
             )
-            np.random.seed(10101)  # Fixed seed for consistent colors across runs.
+            # Fixed seed for consistent colors across runs.
+            np.random.seed(10101)
             np.random.shuffle(
                 self.colors
             )  # Shuffle colors to decorrelate adjacent classes.
@@ -124,7 +133,8 @@ class YOLO(object):
         # Generate output tensor targets for filtered bounding boxes.
         self.input_image_shape = K.placeholder(shape=(2,))
         if self.gpu_num >= 2:
-            self.yolo_model = multi_gpu_model(self.yolo_model, gpus=self.gpu_num)
+            self.yolo_model = multi_gpu_model(
+                self.yolo_model, gpus=self.gpu_num)
         boxes, scores, classes = yolo_eval(
             self.yolo_model.output,
             self.anchors,
@@ -135,42 +145,74 @@ class YOLO(object):
         )
         return boxes, scores, classes
 
+    def get_dist_from_cam(self, box, calibr_param):
+        # see reference: https://www.pyimagesearch.com/2015/01/19/find-distance-camera-objectmarker-using-python-opencv/
+        # consider average human height to be 1.7m
+
+        top, left, bottom, right = box
+        P = abs(top-bottom)
+        D = (self.HUMAN_HEIGHT*calibr_param)/P
+
+        return D  # in meters
+
+    def get_horizontal_dist(self, box_a, box_b, calibr_param, image):
+        # x-axis distance between objects
+
+        top_a, left_a, bottom_a, right_a = box_a
+        top_b, left_b, bottom_b, right_b = box_b
+
+        center_a = self.get_center(box_a, image)
+        center_b = self.get_center(box_b, image)
+
+        h_a = abs(top_a-bottom_a)  # height a in pixels
+
+        return abs(center_a[0]-center_b[0])*self.HUMAN_HEIGHT/h_a  # in meters
+
+    def get_dist_between_obj(self, box_a, box_b, calibr_param, image):
+
+        # horizontal distance between objects
+        h = self.get_horizontal_dist(box_a, box_b, calibr_param, image)
+        # distance of each object from camera
+        d_a = self.get_dist_from_cam(box_a, calibr_param)
+        d_b = self.get_dist_from_cam(box_b, calibr_param)
+
+        # return distance between objects using the Pythagorean Theorem
+        return math.sqrt((d_b-d_a)**2 + (h)**2)  # in meters
+
     def get_center(self, box, image):
         top, left, bottom, right = box
         top = max(0, np.floor(top + 0.5).astype("int32"))
         left = max(0, np.floor(left + 0.5).astype("int32"))
         bottom = min(image.size[1], np.floor(bottom + 0.5).astype("int32"))
         right = min(image.size[0], np.floor(right + 0.5).astype("int32"))
-        
+
         return [(left + right)/2, (top + bottom)/2]
 
-    def check(self, a, b, calibr_param):
-    	  # Returns if the calibrated euclidean distance between the given objects
-    	  # is below a threshold
-        dist = ((a[0] - b[0]) ** 2 + 550 / ((a[1] + b[1]) / 2) * (a[1] - b[1]) ** 2) ** 0.5
-        calibration = (a[1] + b[1]) / 2    
-        
-        if 0 < dist < calibr_param * calibration:
+    def check(self, box_a, box_b, calibr_param, image):
+        # Returns if the calibrated euclidean distance between the given objects
+        # is below a threshold
+        dist = self.get_dist_between_obj(box_a, box_b, calibr_param, image)
+        if 0 < dist < 2:
             return True
         else:
             return False
 
     def get_colors(self, boxes, image, calibr_param):
-    	  # Sets colors of boxes based on the calibrated euclidean distance 
-    	  # between the objects
+        # Sets colors of boxes based on the calibrated euclidean distance
+        # between the objects
         pairs = set()
-        box_colors = ['GreenYellow'] * len(boxes) # initialize with green
+        box_colors = ['GreenYellow'] * len(boxes)  # initialize with green
         for i in range(len(boxes)):
             for j in range(len(boxes)):
                 center_i = self.get_center(boxes[i], image)
                 center_j = self.get_center(boxes[j], image)
-                
-                if self.check(center_i, center_j, calibr_param):
+
+                if self.check(boxes[i], boxes[j], calibr_param, image):
                     box_colors[i] = 'Red'
                     box_colors[j] = 'Red'
-             
+
                     pairs.add((tuple(center_i), tuple(center_j)))
-      
+
         return box_colors, pairs
 
     def detect_image(self, image, show_stats=True, calibr_param=0.25):
@@ -179,7 +221,8 @@ class YOLO(object):
         if self.model_image_size != (None, None):
             assert self.model_image_size[0] % 32 == 0, "Multiples of 32 required"
             assert self.model_image_size[1] % 32 == 0, "Multiples of 32 required"
-            boxed_image = letterbox_image(image, tuple(reversed(self.model_image_size)))
+            boxed_image = letterbox_image(
+                image, tuple(reversed(self.model_image_size)))
         else:
             new_image_size = (
                 image.width - (image.width % 32),
@@ -204,9 +247,11 @@ class YOLO(object):
             print("Found {} boxes for {}".format(len(out_boxes), "img"))
         out_prediction = []
 
-        font_path = os.path.join(os.path.dirname(__file__), "font/FiraMono-Medium.otf")
+        font_path = os.path.join(os.path.dirname(
+            __file__), "font/FiraMono-Medium.otf")
         font = ImageFont.truetype(
-            font=font_path, size=np.floor(3e-2 * image.size[1] + 0.5).astype("int32")
+            font=font_path, size=np.floor(
+                3e-2 * image.size[1] + 0.5).astype("int32")
         )
         thickness = (image.size[0] + image.size[1]) // 300
 
@@ -216,7 +261,6 @@ class YOLO(object):
             draw = ImageDraw.Draw(image)
             p1, p2 = p
             draw.line((p1[0], p1[1], p2[0], p2[1]), fill='Red', width=5)
-
 
         for i, c in reversed(list(enumerate(out_classes))):
             predicted_class = self.class_names[c]
@@ -234,7 +278,7 @@ class YOLO(object):
             left = max(0, np.floor(left + 0.5).astype("int32"))
             bottom = min(image.size[1], np.floor(bottom + 0.5).astype("int32"))
             right = min(image.size[0], np.floor(right + 0.5).astype("int32"))
-            
+
             # image was expanded to model_image_size: make sure it did not pick
             # up any box outside of original image (run into this bug when
             # lowering confidence threshold to 0.01)
@@ -267,6 +311,7 @@ class YOLO(object):
         end = timer()
         if show_stats:
             print("Time spent: {:.3f}sec".format(end - start))
+
         return out_prediction, image
 
     def close_session(self):
@@ -295,7 +340,8 @@ def detect_video(yolo, video_path, output_path="", calibr_param=0.25):
     vid = cv2.VideoCapture(video_path)
     if not vid.isOpened():
         raise IOError("Couldn't open webcam or video")
-    video_FourCC = cv2.VideoWriter_fourcc(*"mp4v")  # int(vid.get(cv2.CAP_PROP_FOURCC))
+    # int(vid.get(cv2.CAP_PROP_FOURCC))
+    video_FourCC = cv2.VideoWriter_fourcc(*"mp4v")
     video_fps = vid.get(cv2.CAP_PROP_FPS)
     video_size = (
         int(vid.get(cv2.CAP_PROP_FRAME_WIDTH)),
@@ -323,7 +369,7 @@ def detect_video(yolo, video_path, output_path="", calibr_param=0.25):
         frame = frame[:, :, ::-1]
         image = Image.fromarray(frame)
         out_pred, image = yolo.detect_image(image, calibr_param=calibr_param,
-        									show_stats=False)
+                                            show_stats=False)
         y_size, x_size, _ = np.array(image).shape
         for single_prediction in out_pred:
             out_df = out_df.append(
@@ -368,14 +414,15 @@ def detect_video(yolo, video_path, output_path="", calibr_param=0.25):
             color=(255, 0, 0),
             thickness=2,
         )
-        # cv2.namedWindow("result", cv2.WINDOW_NORMAL)
-        # cv2.imshow("result", result)
+        cv2.namedWindow("result", cv2.WINDOW_NORMAL)
+        cv2.imshow("result", result[:, :, ::-1])
         if isOutput:
             out.write(result[:, :, ::-1])
-        # if cv2.waitKey(1) & 0xFF == ord('q'):
-        #     break
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            exit(0)
 
-    out_df.to_csv('Video_Prediction_Results_' + video_path.split('/')[-1] + '.csv', index=False)
+    out_df.to_csv('Video_Prediction_Results_' +
+                  video_path.split('/')[-1] + '.csv', index=False)
     vid.release()
     out.release()
     # yolo.close_session()
