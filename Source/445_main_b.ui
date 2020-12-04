@@ -6,12 +6,16 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>892</width>
-    <height>755</height>
+    <width>897</width>
+    <height>815</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>COVID-19 Distance Calculator</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>icons/virus-solid.svg</normaloff>icons/virus-solid.svg</iconset>
   </property>
   <property name="autoFillBackground">
    <bool>false</bool>
@@ -164,7 +168,7 @@ QFrame &gt; QTextBrowser {
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>../../../Users/Mishas/Pictures/icons/bullseye-solid - white.svg</normaloff>../../../Users/Mishas/Pictures/icons/bullseye-solid - white.svg</iconset>
+              <normaloff>icons/bullseye-solid - white.svg</normaloff>icons/bullseye-solid - white.svg</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -181,7 +185,7 @@ QFrame &gt; QTextBrowser {
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>../../../Users/Mishas/Pictures/icons/running-solid - white.svg</normaloff>../../../Users/Mishas/Pictures/icons/running-solid - white.svg</iconset>
+              <normaloff>icons/running-solid - white.svg</normaloff>icons/running-solid - white.svg</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -205,7 +209,7 @@ QFrame &gt; QTextBrowser {
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>../../../Users/Mishas/Pictures/icons/users-solid - white.svg</normaloff>../../../Users/Mishas/Pictures/icons/users-solid - white.svg</iconset>
+              <normaloff>icons/users-solid - white.svg</normaloff>icons/users-solid - white.svg</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -222,7 +226,7 @@ QFrame &gt; QTextBrowser {
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>../../../Users/Mishas/Pictures/icons/cogs-solid - white.svg</normaloff>../../../Users/Mishas/Pictures/icons/cogs-solid - white.svg</iconset>
+              <normaloff>icons/cogs-solid - white.svg</normaloff>icons/cogs-solid - white.svg</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -339,6 +343,37 @@ QFrame &gt; QTextBrowser {
                 </layout>
                </item>
                <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_4">
+                 <item>
+                  <widget class="QLabel" name="label_6">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="text">
+                    <string>Select neural network: </string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="combo_training_network">
+                   <item>
+                    <property name="text">
+                     <string>YOLOv3</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>YOLOv3-tiny</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
                 <widget class="QPushButton" name="button_train_submit">
                  <property name="text">
                   <string>Train</string>
@@ -351,7 +386,7 @@ QFrame &gt; QTextBrowser {
            </widget>
           </item>
           <item>
-           <widget class="QFrame" name="frame">
+           <widget class="QFrame" name="frame_inference">
             <property name="enabled">
              <bool>true</bool>
             </property>
@@ -431,7 +466,38 @@ QFrame &gt; QTextBrowser {
               </layout>
              </item>
              <item row="2" column="0">
-              <widget class="QPushButton" name="pushButton">
+              <layout class="QHBoxLayout" name="horizontalLayout_5">
+               <item>
+                <widget class="QLabel" name="label_7">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string>Select neural network: </string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QComboBox" name="combo_inference_network">
+                 <item>
+                  <property name="text">
+                   <string>YOLOv3</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>YOLOv3-tiny</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item row="3" column="0">
+              <widget class="QPushButton" name="button_demo">
                <property name="text">
                 <string>Run Demo</string>
                </property>
@@ -469,7 +535,7 @@ QFrame &gt; QTextBrowser {
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:12px; margin-bottom:12px; margin-left:40px; margin-right:40px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:40px; margin-right:40px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Some bullshit about this project and the purpose of this course&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:40px; margin-right:40px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;This project let's you train a custom image detector using the state-of-the-art YOLOv3 computer vision algorithm. This works with TensorFlow 2.3 and Keras 2.4. This program detect all people in a frame and then marks the people that violate social distancing rule of 2m.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
@@ -499,7 +565,9 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:12px; margin-bottom:12px; margin-left:40px; margin-right:40px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:40px; margin-right:40px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a name=&quot;output&quot;&gt;&lt;/a&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;S&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;ome technical bullshit about YOLO and QT&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:40px; margin-right:40px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a name=&quot;output&quot;&gt;&lt;/a&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;C&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;onstandinos Demetriou&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:40px; margin-right:40px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a name=&quot;output&quot;&gt;&lt;/a&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;G&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;eorge Hadjiantonis&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:40px; margin-right:40px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a name=&quot;output&quot;&gt;&lt;/a&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;M&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;ichael Konstantinou&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:12px; margin-bottom:12px; margin-left:40px; margin-right:40px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:12px; margin-bottom:12px; margin-left:40px; margin-right:40px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
@@ -540,9 +608,7 @@ p, li { white-space: pre-wrap; }
    </property>
   </widget>
  </widget>
- <resources>
-  <include location="style.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>button_about_us</sender>
@@ -739,7 +805,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>button_training</sender>
    <signal>clicked()</signal>
-   <receiver>frame</receiver>
+   <receiver>frame_inference</receiver>
    <slot>hide()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -755,7 +821,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>button_inference</sender>
    <signal>clicked()</signal>
-   <receiver>frame</receiver>
+   <receiver>frame_inference</receiver>
    <slot>show()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -771,7 +837,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>button_about_us</sender>
    <signal>clicked()</signal>
-   <receiver>frame</receiver>
+   <receiver>frame_inference</receiver>
    <slot>hide()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -787,7 +853,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>button_technical_information</sender>
    <signal>clicked()</signal>
-   <receiver>frame</receiver>
+   <receiver>frame_inference</receiver>
    <slot>hide()</slot>
    <hints>
     <hint type="sourcelabel">
