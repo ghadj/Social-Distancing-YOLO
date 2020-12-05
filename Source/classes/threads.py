@@ -58,3 +58,33 @@ class ConsoleUpdater(QRunnable):
             time.sleep(config.app.CONSOLE_UPDATE_DELAY)
             self.signals.update_console.emit()
         # self.fn(*self.args, **self.kwargs)
+
+class Worker(QRunnable):
+    def __init__(self, fn, *args, **kwargs):
+        super(Worker, self).__init__()
+        # Store constructor arguments (re-used for processing)
+        self.fn = fn
+        self.args = args
+        self.kwargs = kwargs
+        self.signals = WorkerSignals()
+
+    @pyqtSlot()
+    def run(self):
+        '''
+        Initialise the runner function with passed args, kwargs.
+        '''
+
+        # If you want to run a function from the main application use the following code
+        # self.fn(*self.args, **self.kwargs)
+
+        # Else just proceed with your program
+        print('Thread worker Initialized')
+        print('some other code blocks here')
+
+        # In the main application file (main_c.py), you will have to execute this thread as follows
+        # worker_thread = threads.Worker()
+        # self.threadpool.start(worker_thread)
+
+        # In case you would like to execute function in that thread
+        # worker_thread = threads.Worker()
+        # worker_thread = threads.Worker(self.some_function)
