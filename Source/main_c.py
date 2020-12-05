@@ -13,7 +13,6 @@ from matplotlib import pyplot as plt
 import sys
 import cv2
 import os
-
 import time
 from io import StringIO
 
@@ -25,6 +24,7 @@ import classes.threads as threads
 
 # Configuration files
 import config.app
+
 
 class Ui_MainWindow(object):
     def __init__(self):
@@ -39,87 +39,12 @@ class Ui_MainWindow(object):
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(949, 973)
+        MainWindow.resize(1017, 765)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("icons/virus-solid.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
         MainWindow.setAutoFillBackground(False)
-        MainWindow.setStyleSheet("@font-face {\n"
-"  font-family: Roboto;\n"
-"  src: url(\'https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap\');\n"
-"}\n"
-"\n"
-"QMainWindow {\n"
-"    font-family: Roboto;\n"
-"}\n"
-"\n"
-"#sidebar_bg {\n"
-"    background-color:#343957;\n"
-"}\n"
-"\n"
-"#centralwidget {\n"
-"    background-color: #f8f9fe;\n"
-"    font-size: 12px;\n"
-"}\n"
-"\n"
-"QPushButton {\n"
-"    border: none;\n"
-"    background-color: #343957;\n"
-"    color: white;\n"
-"    font-size: 12px;\n"
-"    padding: 15px 0 15px 10px;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #6b51df;\n"
-"}\n"
-"\n"
-"QPushButton > QLabel {\n"
-"    color: white;\n"
-"}\n"
-"\n"
-"#sidebar_bg > QLabel {\n"
-"    color: white;\n"
-"}\n"
-"\n"
-"#heading_stats, #heading_console_output {\n"
-"    font-size: 22px;\n"
-"    color: #3d4465;\n"
-"    margin-bottom: 0.5rem;\n"
-"    font-weight: 500;\n"
-"    line-height: 1.2;\n"
-"}\n"
-"\n"
-"#sidebar_bg > QPushButton {\n"
-"    text-align: left;\n"
-"    padding-left: 15px;\n"
-"}\n"
-"\n"
-"#label_menu, #label_information {\n"
-"    font-size: 16px;\n"
-"    padding-top: 10px;\n"
-"    padding-left: 15px;\n"
-"    color: #627186;\n"
-"}\n"
-"\n"
-"QFrame > QTextBrowser {\n"
-"    background-color: #d4dbf9;\n"
-"    border-radius: 10px;\n"
-"}\n"
-"\n"
-"#button_train_browse, #button_weights_browse, #button_images_browse {\n"
-"    padding: 5px 0 5px 0;\n"
-"}\n"
-"\n"
-"#text_console {\n"
-"    background-color: black;\n"
-"    border-radius: 10px;\n"
-"    color: green;\n"
-"    padding-left: 10px;\n"
-"}\n"
-"\n"
-"\n"
-"")
+
         self.gridLayout_4 = QtWidgets.QGridLayout(MainWindow)
         self.gridLayout_4.setObjectName("gridLayout_4")
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -316,22 +241,8 @@ class Ui_MainWindow(object):
         self.frame_inference.setObjectName("frame_inference")
         self.gridLayout_7 = QtWidgets.QGridLayout(self.frame_inference)
         self.gridLayout_7.setObjectName("gridLayout_7")
-        self.horizontalLayout_5 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_5.setObjectName("horizontalLayout_5")
-        self.label_7 = QtWidgets.QLabel(self.frame_inference)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_7.sizePolicy().hasHeightForWidth())
-        self.label_7.setSizePolicy(sizePolicy)
-        self.label_7.setObjectName("label_7")
-        self.horizontalLayout_5.addWidget(self.label_7)
-        self.combo_inference_network = QtWidgets.QComboBox(self.frame_inference)
-        self.combo_inference_network.setObjectName("combo_inference_network")
-        self.combo_inference_network.addItem("")
-        self.combo_inference_network.addItem("")
-        self.horizontalLayout_5.addWidget(self.combo_inference_network)
-        self.gridLayout_7.addLayout(self.horizontalLayout_5, 2, 0, 1, 1)
+        self.verticalLayout_5 = QtWidgets.QVBoxLayout()
+        self.verticalLayout_5.setObjectName("verticalLayout_5")
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.label_4 = QtWidgets.QLabel(self.frame_inference)
@@ -353,7 +264,7 @@ class Ui_MainWindow(object):
         self.button_weights_browse = QtWidgets.QPushButton(self.frame_inference)
         self.button_weights_browse.setObjectName("button_weights_browse")
         self.horizontalLayout_2.addWidget(self.button_weights_browse)
-        self.gridLayout_7.addLayout(self.horizontalLayout_2, 0, 0, 1, 1)
+        self.verticalLayout_5.addLayout(self.horizontalLayout_2)
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         self.label_5 = QtWidgets.QLabel(self.frame_inference)
@@ -375,10 +286,51 @@ class Ui_MainWindow(object):
         self.button_images_browse = QtWidgets.QPushButton(self.frame_inference)
         self.button_images_browse.setObjectName("button_images_browse")
         self.horizontalLayout_3.addWidget(self.button_images_browse)
-        self.gridLayout_7.addLayout(self.horizontalLayout_3, 1, 0, 1, 1)
+        self.verticalLayout_5.addLayout(self.horizontalLayout_3)
+        self.horizontalLayout_6 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_6.setObjectName("horizontalLayout_6")
+        self.label_8 = QtWidgets.QLabel(self.frame_inference)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label_8.sizePolicy().hasHeightForWidth())
+        self.label_8.setSizePolicy(sizePolicy)
+        self.label_8.setObjectName("label_8")
+        self.horizontalLayout_6.addWidget(self.label_8)
+        self.text_focal_length = QtWidgets.QLineEdit(self.frame_inference)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.text_focal_length.sizePolicy().hasHeightForWidth())
+        self.text_focal_length.setSizePolicy(sizePolicy)
+        self.text_focal_length.setObjectName("text_focal_length")
+        self.horizontalLayout_6.addWidget(self.text_focal_length)
+        self.verticalLayout_5.addLayout(self.horizontalLayout_6)
+        self.horizontalLayout_5 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_5.setObjectName("horizontalLayout_5")
+        self.label_7 = QtWidgets.QLabel(self.frame_inference)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label_7.sizePolicy().hasHeightForWidth())
+        self.label_7.setSizePolicy(sizePolicy)
+        self.label_7.setObjectName("label_7")
+        self.horizontalLayout_5.addWidget(self.label_7)
+        self.combo_inference_network = QtWidgets.QComboBox(self.frame_inference)
+        self.combo_inference_network.setObjectName("combo_inference_network")
+        self.combo_inference_network.addItem("")
+        self.combo_inference_network.addItem("")
+        self.horizontalLayout_5.addWidget(self.combo_inference_network)
+        self.verticalLayout_5.addLayout(self.horizontalLayout_5)
         self.button_demo = QtWidgets.QPushButton(self.frame_inference)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.button_demo.sizePolicy().hasHeightForWidth())
+        self.button_demo.setSizePolicy(sizePolicy)
         self.button_demo.setObjectName("button_demo")
-        self.gridLayout_7.addWidget(self.button_demo, 3, 0, 1, 1)
+        self.verticalLayout_5.addWidget(self.button_demo)
+        self.gridLayout_7.addLayout(self.verticalLayout_5, 0, 0, 1, 1)
         self.verticalLayout_2.addWidget(self.frame_inference)
         self.frame_about = QtWidgets.QFrame(self.app_container)
         self.frame_about.setFrameShape(QtWidgets.QFrame.StyledPanel)
@@ -428,6 +380,7 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.text_console.sizePolicy().hasHeightForWidth())
         self.text_console.setSizePolicy(sizePolicy)
+        self.text_console.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.text_console.setObjectName("text_console")
         self.verticalLayout_4.addWidget(self.text_console)
         self.gridLayout_8.addLayout(self.verticalLayout_4, 0, 0, 1, 1)
@@ -463,6 +416,13 @@ class Ui_MainWindow(object):
         self.button_about_us.clicked.connect(self.frame_console.hide)
         self.button_technical_information.clicked.connect(self.frame_console.hide)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        
+    def customConfiguration(self):
+
+        # Apply stylesheet
+        sshFile="styles.qss"
+        with open(sshFile,"r") as fh:
+            MainWindow.setStyleSheet(fh.read())
 
         # Hide all frames except first one
         self.frame_about.hide()
@@ -476,7 +436,7 @@ class Ui_MainWindow(object):
         worker = threads.ConsoleUpdater(self.updateConsole)
         worker.signals.update_console.connect(self.updateConsole)
         self.threadpool.start(worker)
-        
+
     def setEvents(self):
         """
         Set custom event listeners for form inputs or objects
@@ -500,6 +460,7 @@ class Ui_MainWindow(object):
         self.label_information.setText(_translate("MainWindow", "INFORMATION"))
         self.button_about_us.setText(_translate("MainWindow", "  About our team"))
         self.button_technical_information.setText(_translate("MainWindow", "  Technical information"))
+        self.label.setAccessibleName(_translate("MainWindow", "sth"))
         self.label.setText(_translate("MainWindow", "Last Update: 04/12/2020"))
         self.label_2.setText(_translate("MainWindow", "Version: Beta 0.9"))
         self.heading_stats.setAccessibleName(_translate("MainWindow", "h1"))
@@ -510,13 +471,14 @@ class Ui_MainWindow(object):
         self.combo_training_network.setItemText(0, _translate("MainWindow", "YOLOv3"))
         self.combo_training_network.setItemText(1, _translate("MainWindow", "YOLOv3-tiny"))
         self.button_train_submit.setText(_translate("MainWindow", "Train"))
-        self.label_7.setText(_translate("MainWindow", "Select neural network: "))
-        self.combo_inference_network.setItemText(0, _translate("MainWindow", "YOLOv3"))
-        self.combo_inference_network.setItemText(1, _translate("MainWindow", "YOLOv3-tiny"))
         self.label_4.setText(_translate("MainWindow", "Load weights:"))
         self.button_weights_browse.setText(_translate("MainWindow", "Browse"))
         self.label_5.setText(_translate("MainWindow", "Images:"))
         self.button_images_browse.setText(_translate("MainWindow", "Browse"))
+        self.label_8.setText(_translate("MainWindow", "Focal Length:"))
+        self.label_7.setText(_translate("MainWindow", "Select neural network: "))
+        self.combo_inference_network.setItemText(0, _translate("MainWindow", "YOLOv3"))
+        self.combo_inference_network.setItemText(1, _translate("MainWindow", "YOLOv3-tiny"))
         self.button_demo.setText(_translate("MainWindow", "Run Demo"))
         self.frame_about.setWhatsThis(_translate("MainWindow", "<html><head/><body><p><br/></p></body></html>"))
         self.textBrowser.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
@@ -537,6 +499,7 @@ class Ui_MainWindow(object):
 "<p style=\"-qt-paragraph-type:empty; margin-top:12px; margin-bottom:12px; margin-left:40px; margin-right:40px; -qt-block-indent:0; text-indent:0px; font-size:8pt;\"><br /></p></body></html>"))
         self.heading_console_output.setText(_translate("MainWindow", "Console output"))
         self.text_console.setPlainText(_translate("MainWindow", "Output >>"))
+
 
     def browseSlot(self, line_editor='dataset'):
         """
@@ -599,12 +562,12 @@ class Ui_MainWindow(object):
         # Write console output to screen        
         self.text_console.setPlainText(self.console_output.getvalue())
 
-
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QWidget()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
+    ui.customConfiguration()
     MainWindow.show()
     sys.exit(app.exec_())

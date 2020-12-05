@@ -1,0 +1,75 @@
+@font-face {
+  font-family: Roboto;
+  src: url('https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap');
+}
+
+QMainWindow {
+	font-family: Roboto;
+}
+
+#sidebar_bg {
+	background-color:#343957;
+}
+
+#centralwidget {
+	background-color: #f8f9fe;
+	font-size: 12px;
+}
+
+QPushButton {
+	border: none;
+	background-color: #343957;
+	color: white;
+	font-size: 12px;
+	padding: 15px 0 15px 10px;
+}
+
+QPushButton:hover {
+	background-color: #6b51df;
+}
+
+QPushButton > QLabel {
+	color: white;
+}
+
+#sidebar_bg > QLabel {
+	color: white;
+}
+
+#heading_stats, #heading_console_output {
+	font-size: 22px;
+	color: #3d4465;
+	margin-bottom: 0.5rem;
+	font-weight: 500;
+	line-height: 1.2;
+}
+
+#sidebar_bg > QPushButton {
+	text-align: left;
+	padding-left: 15px;
+}
+
+#label_menu, #label_information {
+	font-size: 16px;
+	padding-top: 10px;
+	padding-left: 15px;
+	color: #627186;
+}
+
+QFrame > QTextBrowser {
+	background-color: #d4dbf9;
+	border-radius: 10px;
+}
+
+#button_train_browse, #button_weights_browse, #button_images_browse {
+	padding: 5px 0 5px 0;
+}
+
+#text_console {
+	background-color: black;
+	border-radius: 10px;
+	color: green;
+	padding-left: 10px;
+}
+
+
