@@ -414,12 +414,12 @@ def detect_video(yolo, video_path, output_path="", calibr_param=0.25):
             color=(255, 0, 0),
             thickness=2,
         )
-        '''cv2.namedWindow("result", cv2.WINDOW_NORMAL)
+        cv2.namedWindow("result", cv2.WINDOW_NORMAL)
         cv2.imshow("result", result[:, :, ::-1])
         if isOutput:
             out.write(result[:, :, ::-1])
         if cv2.waitKey(1) & 0xFF == ord('q'):
-            exit(0)'''
+            exit(0)
 
     out_df.to_csv('Video_Prediction_Results_' +
                   video_path.split('/')[-1] + '.csv', index=False)

@@ -10,11 +10,6 @@ import os
 import time
 from io import StringIO
 
-# Custom modules
-import classes.core_mods as core
-import classes.file as file
-import classes.jpeg as jpeg
-
 # Configuration files
 import config.app
 
