@@ -3,7 +3,7 @@
 # Created by: PyQt5 UI code generator 5.13.2
 #
 # WARNING! All changes made in this file will be lost!
-
+import subprocess
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import *
@@ -431,9 +431,9 @@ class Ui_MainWindow(object):
         self.setEvents()
         
         # Now run a thread that updates the console
-        worker = threads.ConsoleUpdater(self.updateConsole)
-        worker.signals.update_console.connect(self.updateConsole)
-        self.threadpool.start(worker)
+        # worker = threads.ConsoleUpdater(self.updateConsole)
+        # worker.signals.update_console.connect(self.updateConsole)
+        # self.threadpool.start(worker)
 
     def setEvents(self):
         """
@@ -542,7 +542,9 @@ class Ui_MainWindow(object):
                 pass
 
     def run_train(self, annotation_file, is_tiny):
-            if is_tiny:
+            self.run_command('py test.py')
+
+            """if is_tiny:
                     cmd = 'python 2_Training/Download_and_Convert_YOLO_weights.py --is_tiny --annotation_file ' + annotation_file
                     os.system(cmd)
                     cmd = 'python 2_Training/Train_YOLO.py --is_tiny'
@@ -551,7 +553,7 @@ class Ui_MainWindow(object):
                     cmd = 'python 2_Training/Download_and_Convert_YOLO_weights.py --annotation_file ' + annotation_file
                     os.system(cmd)
                     cmd = 'python 2_Training/Train_YOLO.py'
-                    os.system(cmd)
+                    os.system(cmd)"""
 
     def run_inference(self, input_path, yolo_model, is_tiny, calibr_param):
             if is_tiny:
@@ -567,20 +569,23 @@ class Ui_MainWindow(object):
         """
         Please keep in mind guys that we have to take the arguments from the line_editors!!
         """
+        
         print('Train invocked')
         annotation_file = self.text_dataset.text()
         is_tiny = False
         if self.combo_training_network.currentText() == 'YOLOv3-tiny':
                 is_tiny = True
 
-       # self.run_train(annotation_file, is_tiny)
-
-        self.updateConsole()
+        # Start new thread
+        worker_thread = threads.WorkerTrainer(self.run_train, annotation_file, is_tiny)
+        worker_thread.signals.update_console.connect(self.updateConsole)
+        self.threadpool.start(worker_thread)
 
     def submitDemo(self):
         """
         Please keep in mind guys that we have to take the arguments from the line_editors!!
         """
+
         print('Demo invocked')
         input_path = self.text_images.text()
         yolo_model =self.text_weights.text()
@@ -600,6 +605,21 @@ class Ui_MainWindow(object):
 
         # Write console output to screen        
         self.text_console.setPlainText(self.console_output.getvalue())
+
+    def run_command(self, cmd):
+        """ Function is called by thread """
+
+        # Run test program
+        output = subprocess.check_output(cmd)
+        print(output.decode("utf-8") )
+
+    def run_test(self):
+        """ Function is called by thread """
+
+        # Run test program
+        cmd = 'py test.py'
+        output = subprocess.check_output(cmd)
+        print(output)
 
 if __name__ == "__main__":
     import sys
